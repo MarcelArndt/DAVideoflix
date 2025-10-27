@@ -1,7 +1,7 @@
 # DAVideoflix
 
 Ein Backend-Projekt mit Django + Django REST framework, das eine Netflix-ähnliche Video-Streaming-Plattform simuliert.  
-Ziel: Aufgabenverwaltung von Film-/Video-Inhalten, Kategorisierung nach Genres („newOnVideoflix“, „documentary“ etc.), Verlinkung zu Video­dateien und Thumbnails.
+Ziel: Aufgabenverwaltung von Film-/Video-Inhalten, Kategorisierung nach Genres, Verlinkung zu Video­dateien und Thumbnails.
 
 ## Features
 
@@ -56,7 +56,7 @@ Admin-Interface (sofern konfiguriert) unter /admin
 <ul>
     <li>Stelle sicher, dass deine .env korrekt ist, bevor du docker-compose up ausführst. Fehler wie falsche DB-Zugangsdaten oder fehlender SECRET_KEY führen sonst zu Build/Startup-Fehlern</li>
     <li>Für Produktion: Achte darauf, DEBUG=FALSE, sichere SECRET_KEY, HTTPS, „allowed hosts“ korrekt setzen</li>
-    <li>Dokumentation der API Endpunkte <a href="https://cdn.developerakademie.com/courses/Backend/EndpointDoku/index.html?name=videoflix"></a> </li>
+    <li>Dokumentation der API Endpunkte <a href="https://cdn.developerakademie.com/courses/Backend/EndpointDoku/index.html?name=videoflix">Videoflix API Doku</a> </li>
     <li>.env.template – Vorlage für Umgebungsvariablen</li>
     <li>requirements.txt – Python-Abhängigkeiten</li>
 </ul>
