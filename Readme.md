@@ -52,7 +52,7 @@ docker-compose up --build</li>
 </ul>
 
 API-Endpunkte entsprechend der Dokumentation im Projekt
-Admin-Interface (sofern konfiguriert) unter /admin
+Admin-Interface (sofern konfiguriert) unter api/admin
 
 ## Struktur des Projekts
 
