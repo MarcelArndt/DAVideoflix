@@ -13,9 +13,9 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_str 
 
 from dotenv import load_dotenv
 
@@ -133,9 +133,7 @@ class SendEmailForResetPasswordSerializer(serializers.Serializer):
         username = user.username
         user_email = user.email
         base_url_frontend = os.environ.get('BASIS_URL_FRONTEND', default="http://127.0.0.1:5500")
-        ##url = f'{base_url_frontend}/api/password_confirm'
         reset_link = f'{base_url_frontend}/pages/auth/confirm_password.html?uid={userId}&token={token}'
-        #reset_link = f"{url}/{userId}/{token}"
         self.send_email_to_user(username, user_email, reset_link)
         return {"detail":'An email has been sent to reset your password.'}
 
@@ -150,7 +148,7 @@ class SendEmailForResetPasswordSerializer(serializers.Serializer):
         email = EmailMultiAlternatives(
             subject="Reset your Password",
             body=text_content,
-            from_email=os.environ.get("DEFAULT_FROM_EMAIL", default="noreply@serializer.de"),
+            from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user_email],
         )
         email.attach_alternative(html_content, "text/html")

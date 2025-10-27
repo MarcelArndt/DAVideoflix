@@ -29,12 +29,12 @@ def sendMail(created, instance):
             instance.is_active = False
             instance.save()
         subject = "Willkommen bei Videoflix"
-        from_email = "noreply@videoflix.de"
-        basis_url_backend =  os.environ.get("BASIS_URL_BACKEND", default="http://localhost:8000")
+        from_email = settings.DEFAULT_FROM_EMAIL
+        basis_url_frontend =  os.environ.get("BASIS_URL_FRONTEND", default="http://localhost:5500")
         uidb64Id =  urlsafe_base64_encode(force_bytes(instance.pk))
         context = {
             "username": instance.username,
-            "verify_link": f"{basis_url_backend}/api/activate/{uidb64Id}/{instance.email_token}/"
+            "verify_link": f"{basis_url_frontend}/pages/auth/activate.html?uid={uidb64Id}&token={instance.email_token}"
         }
         html_content = render_to_string("emails/verification_email.html", context)
         email = EmailMultiAlternatives(subject, "", from_email, [instance.email])

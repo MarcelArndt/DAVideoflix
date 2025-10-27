@@ -8,14 +8,15 @@ from auth_app.auth import CookieJWTAuthentication
 from auth_app.permissions import AllowAnyButTrackAuth
 
 from rest_framework.views import APIView 
-from rest_framework.generics import ListAPIView
+
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
+from django.shortcuts import render
+from django.views import View
 
-from .serializers import UserSerializer
 from dotenv import load_dotenv
 from django.contrib.auth.tokens import default_token_generator
 
@@ -238,3 +239,9 @@ class ResendEmailView(APIView):
         if serializer.is_valid():
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PreviewEmailView(View):
+    def get(self, request):
+        context = {'username': 'TestUser', 'reset_link': 'https://example.com/reset'}
+        return render(request, 'emails/verification_email.html', context)

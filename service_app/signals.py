@@ -99,7 +99,7 @@ def generate_master_playlist(filename, output_dir):
         '360p': 800000,
     }
     with open(master_playlist_path, 'w') as file:
-        file.write('#EXTM3U\n')  # Wichtig!
+        file.write('#EXTM3U\n')
         for resolution, size in RESOLUTIONS['videos'].items():
             bandwidth = bandwidth_map.get(resolution, 1000000)
             file.write(f'#EXT-X-STREAM-INF:BANDWIDTH={bandwidth},RESOLUTION={size}\n')

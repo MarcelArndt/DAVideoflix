@@ -1,5 +1,5 @@
 from django.urls import path
-from .api.view import RegestrationView, VerifyEmailView, SendEmailForResetPasswordView, SetNewPasswordView, ResendEmailView, CookieTokenObtainView, CookieTokenRefreshView, CookieTokenLogoutView, CookieIsAuthenticatedAndVerifiedView
+from .api.view import RegestrationView, PreviewEmailView, VerifyEmailView, SendEmailForResetPasswordView, SetNewPasswordView, ResendEmailView, CookieTokenObtainView, CookieTokenRefreshView, CookieTokenLogoutView, CookieIsAuthenticatedAndVerifiedView
 
 urlpatterns = [
     path("login/", CookieTokenObtainView.as_view(), name='token_obtain_pair'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('resend-email/', ResendEmailView.as_view(), name='resend-email'),
     path('logout/', CookieTokenLogoutView.as_view(), name='logout'),
     path('token/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
-    path('is-authenticated/', CookieIsAuthenticatedAndVerifiedView.as_view(), name='token_is_auth')
+    path('is-authenticated/', CookieIsAuthenticatedAndVerifiedView.as_view(), name='token_is_auth'),
+    path('email-preview/', PreviewEmailView.as_view(), name='email_preview')
 ]

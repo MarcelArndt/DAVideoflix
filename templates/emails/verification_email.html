@@ -9,23 +9,68 @@
   <meta charset="utf-8">
   <title>Confirm your email</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
- 
-  <div style="max-width: 850px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px;">
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+  
 
-    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
-      <img src="https://arndt-marcel.de/assets/img/videoflix/logo.png" alt="Videoflix Logo" style="width: 250px;">
-    </div>
-    <p style="color: #535456; font-size:1rem; line-height: 1.6;">Dear <span style="color: #2e3edf;">{{ username }}</span>,</p>
-    <p style="color: #535456; font-size:1rem; line-height: 1.6;">Thank you for registering with <span style="color: #2e3edf;">Videoflix</span>. To complete your registration and verify your email address, please click the link below:</p>
-    <p style="color: #535456; font-size:1rem; line-height: 1.6;">
-      <a href="{{ verify_link }}"  style="background-color: #2e3edf; font-size:1.125rem ; font-weight: 600; color: white; padding: 12px 20px; text-decoration: none; border-radius: 24px;">
-        Activate account
-      </a>
-    </p>
-    <p style="color: #535456; font-size:1rem; margin-bottom:16px;" >If you did not create an account with us, please disregard this email.</p>
-    <p style="color: #535456; font-size:1rem; margin-bottom:16px;">Best regards,</p>
-    <p style="color: #535456; font-size:1rem;">Your Videoflix Team.</p>
-  </div>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        
+
+        <table width="850" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 10px; max-width: 850px;">
+          <tr>
+            <td style="padding: 20px;">
+              
+   
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="padding-bottom: 20px;">
+                    <img src="https://arndt-marcel.de/assets/img/videoflix/logo.png" alt="Videoflix Logo" width="250" style="display: block; max-width: 250px; height: auto;">
+                  </td>
+                </tr>
+              </table>
+              
+    
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="color: #535456; font-size: 16px; line-height: 1.6; padding-bottom: 16px;">
+                    Dear <span style="color: #2e3edf;">{{ username }}</span>,
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #535456; font-size: 16px; line-height: 1.6; padding-bottom: 16px;">
+                    Thank you for registering with <span style="color: #2e3edf;">Videoflix</span>. To complete your registration and verify your email address, please click the link below:
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left" style="padding: 20px 0;">
+                    <a href="{{ verify_link }}" style="display: inline-block; background-color: #2e3edf; font-size: 18px; font-weight: 600; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 24px;">Activate account</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #535456; font-size: 16px; line-height: 1.6; padding-bottom: 16px;">
+                    If you did not create an account with us, please disregard this email.
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #535456; font-size: 16px; line-height: 1.6; padding-bottom: 16px;">
+                    Best regards,
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #535456; font-size: 16px; line-height: 1.6;">
+                    Your Videoflix Team.
+                  </td>
+                </tr>
+              </table>
+              
+            </td>
+          </tr>
+        </table>
+        
+      </td>
+    </tr>
+  </table>
+  
 </body>
 </html>
