@@ -3,6 +3,10 @@
 Ein Backend-Projekt mit Django + Django REST framework, das eine Netflix-ähnliche Video-Streaming-Plattform simuliert.  
 Ziel: Aufgabenverwaltung von Film-/Video-Inhalten, Kategorisierung nach Genres, Verlinkung zu Video­dateien und Thumbnails.
 
+
+## Benötigt das DA Videoflix Frontend
+<a href="https://github.com/Developer-Akademie-Backendkurs/project.Videoflix">Project Videoflix</a>
+
 ## Features
 
 - REST-API für Video-Inhalte, mit Metadaten wie Titel, Genre, Beschreibung, Thumbnail, Video-Link  
@@ -29,13 +33,19 @@ Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen</
 <li>3. virtuelle umgebung ertsellen | 
 python -m venv env</li>
 
-<li>4.requirements installieren | 
+<li>4. virtuelle umgebung aktivieren | 
+./env/Scripts/activate</li>
+
+<li>5.requirements installieren | 
 pip install -r requirements.txt</li>
 
-<li>5.Docker-Compose ausführen | 
+<li>5. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern | 
 docker-compose up --build</li>
 
-<li>6.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)</li>
+<li>6.Docker-Compose ausführen | 
+docker-compose up --build</li>
+
+<li>7.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)</li>
 </ul>
 
 API-Endpunkte entsprechend der Dokumentation im Projekt
