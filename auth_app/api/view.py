@@ -30,9 +30,7 @@ django.setup()
 load_dotenv()
 User = get_user_model()
 
-ISDEBUG = os.environ.get("DEBUG", default="True")
-SECURE = False if ISDEBUG == "True" else True
-print(SECURE)
+
 
 class RegestrationView(APIView):
     permission_classes = [AllowAny]
@@ -78,7 +76,7 @@ class CookieTokenLogoutView(APIView):
             value = '',
             expires = expires,
             httponly = True,
-            secure = SECURE,
+            secure = True,
             samesite='Lax'
         )
 
@@ -87,7 +85,7 @@ class CookieTokenLogoutView(APIView):
             value = '',
             httponly = True,
             expires = expires,
-            secure = SECURE,
+            secure = True,
             samesite='Lax'
         )
 
@@ -123,7 +121,7 @@ class CookieTokenObtainView(TokenObtainPairView):
                 value = str(access),
                 httponly = True,
                 expires=expires,
-                secure = SECURE,
+                secure = True,
                 samesite='Lax'
             )
 
@@ -132,7 +130,7 @@ class CookieTokenObtainView(TokenObtainPairView):
                 expires=expires,
                 value = str(refresh),
                 httponly = True,
-                secure = SECURE,
+                secure = True,
                 samesite='Lax'
             )
 
@@ -161,7 +159,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             key = 'access_key',
             value = str(access_token),
             httponly = True,
-            secure = SECURE,
+            secure = True,
             samesite='Lax'
         )
         return response

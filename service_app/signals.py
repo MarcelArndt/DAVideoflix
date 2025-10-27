@@ -29,11 +29,10 @@ RESOLUTIONS = {
 def generate_video_data(sender, instance, created, **kwargs):
     if not created or not instance.url:
         return
-    if not ISDEBUG:
-        queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(generate_video_versions, instance)
-    else: 
-        generate_video_versions(instance)
+
+    queue = django_rq.get_queue('default', autocommit=True)
+    queue.enqueue(generate_video_versions, instance)
+
 
 def generate_video_versions(instance):
     base_output_dir = os.path.join(settings.MEDIA_ROOT, 'uploads/videos/converted')

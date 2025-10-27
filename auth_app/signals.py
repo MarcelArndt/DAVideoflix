@@ -20,11 +20,10 @@ ISDEBUG = True if os.environ.get("DEBUG", default="True") == "True" else False
 
 @receiver(post_save, sender=Profiles)
 def send_verification_email(sender, instance, created, **kwargs):
-    if not ISDEBUG:
-        queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(sendMail,created, instance)
-    else:
-        sendMail(created, instance)
+
+    queue = django_rq.get_queue('default', autocommit=True)
+    queue.enqueue(sendMail,created, instance)
+
 
 def sendMail(created, instance):
     if created:

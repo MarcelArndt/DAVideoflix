@@ -48,6 +48,9 @@ docker-compose up --build</li>
 <li>8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)</li>
 </ul>
 
+<li>9. Videos hochladen geht über das Admin-Panel <a href="http://localhost:8000/api/admin/service_app/video/">http://localhost:8000/api/admin/service_app/video/<a></li>
+</ul>
+
 API-Endpunkte entsprechend der Dokumentation im Projekt
 Admin-Interface (sofern konfiguriert) unter /admin
 
