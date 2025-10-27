@@ -15,8 +15,6 @@ from django.utils.encoding import force_bytes
 from dotenv import load_dotenv
 load_dotenv()
 
-ISDEBUG = True if os.environ.get("DEBUG", default="True") == "True" else False
-
 
 @receiver(post_save, sender=Profiles)
 def send_verification_email(sender, instance, created, **kwargs):
