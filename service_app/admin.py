@@ -4,16 +4,11 @@ from .models import Video
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    # Felder, die angezeigt werden, aber **nicht editierbar** sind
-    readonly_fields = ('thumbnail_url', 'is_converted', 'current_convert_state')
-
-    #Liste der Felder, die im Admin angezeigt werden sollen
-    list_display = ('title', 'category',)
-
-    # welche Felder im Formular sichtbar sind
-    fields = ('title', 'description', 'category', 'url')
-
-    def video_url(self, obj):
-        return obj.url
+    readonly_fields = ('is_converted', 'current_convert_state')
+    list_display = ('title', 'category', 'url')
+    fields = ('title', 'description', 'category', 'url', 'thumbnail_url')
     
-    video_url.short_description = "Video-URL" 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['url'].label = 'Video-URL'
+        return form
