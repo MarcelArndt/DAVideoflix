@@ -39,14 +39,13 @@ python -m venv env</li>
 <li>5.requirements installieren | 
 pip install -r requirements.txt</li>
 
-<li>6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern | 
-docker-compose up --build</li>
+<li>6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern</li>
 
 <li>7.Docker-Compose ausführen | 
 docker-compose up --build</li>
 
 <li>8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)</li>
-</ul>
+
 
 <li>9. Videos hochladen geht über das Admin-Panel <a href="http://localhost:8000/api/admin/service_app/video/">http://localhost:8000/api/admin/service_app/video/<a></li>
 </ul>
