@@ -11,7 +11,6 @@ from auth_app.auth import CookieJWTAuthentication
 from django.contrib.auth.models import User
 from django.conf import settings
 import os
-import re
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
@@ -49,16 +48,9 @@ class ServeVideoMasterView(APIView):
         except Video.DoesNotExist:
             raise Http404("Video not found")
         
-        # Filename extrahieren
         filename, _ = os.path.splitext(os.path.basename(video.url.path))
-        
-        # "_master" entfernen (falls vorhanden)
         filename = filename.replace('_master', '')
-        
-        # Auf 20 Zeichen kürzen (wie bei der Konvertierung)
         filename = filename[0:20]
-        
-        print(f"Bereinigter Filename: {filename}")
         
         playlist_path = os.path.join(
             settings.MEDIA_ROOT,
@@ -66,8 +58,6 @@ class ServeVideoMasterView(APIView):
             f'{filename}_{resolution}',
             'index.m3u8'
         )
-        
-        print(f"Suche Playlist hier: {playlist_path}")
         
         if not os.path.exists(playlist_path):
             raise Http404(f"Playlist not found: {playlist_path}")
@@ -89,7 +79,7 @@ class ServeHlsSegmentView(APIView):
             raise Http404("Invalid segment format")
         
         filename, _ = os.path.splitext(os.path.basename(video.url.path))
-        filename = filename.replace('_master', '')  # <- HIER AUCH!
+        filename = filename.replace('_master', '') 
         filename = filename[0:20]
         
         segment_path = os.path.join(
@@ -177,3 +167,26 @@ class CurrentVideoConvertProgressDetailView(generics.RetrieveUpdateDestroyAPIVie
     authentication_classes = [CookieJWTAuthentication]
     serializer_class = CurrentVideoConvertProgressSerializer
     queryset = CurrentVideoConvertProgress.objects.all() 
+    
+class ServeMediaView(APIView):
+    def get(self, request, path):
+        file_path = os.path.join(settings.MEDIA_ROOT, path)
+        
+        if not os.path.exists(file_path):
+            raise Http404("File not found")
+        
+        if not os.path.abspath(file_path).startswith(os.path.abspath(settings.MEDIA_ROOT)):
+            raise Http404("Invalid path")
+        
+        content_type = 'application/octet-stream'
+        if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+            content_type = 'image/jpeg'
+        elif file_path.endswith('.png'):
+            content_type = 'image/png'
+        elif file_path.endswith('.gif'):
+            content_type = 'image/gif'
+        
+        return FileResponse(
+            open(file_path, 'rb'),
+            content_type=content_type
+        )

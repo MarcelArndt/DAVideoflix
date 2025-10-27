@@ -66,34 +66,7 @@ class RegestrationSerializer(serializers.ModelSerializer):
         profil = Profiles.objects.create_user(username = new_username, email = email, password = password, email_token = token )
         return profil
     
-class VerifyUserByEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profiles
-        fields = '__all__' 
 
-    def validate(self, data):
-        request = self.context.get("request")
-        token = request.query_params.get("token")
-        uidb64 = request.query_params.get("id")
-        id = force_str(urlsafe_base64_decode(uidb64))
-        try:
-            user = Profiles.objects.get(pk=id)
-        except:
-             raise serializers.ValidationError({"message": "no User Found"})
-        
-        if(user.email_token == token):
-            user.email_is_confirmed = True
-            user.is_active = True
-            user.save()
-        else:
-            raise serializers.ValidationError({"message": "invalid link"})
-        
-        data = {"message": "Account successfully activated."}
-
-        return data
-
-
-    
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -159,9 +132,10 @@ class SendEmailForResetPasswordSerializer(serializers.Serializer):
         token  = default_token_generator.make_token(user)
         username = user.username
         user_email = user.email
-        base_url_frontend = os.environ.get('BASIS_URL_FRONTEND', default="http://localhost:4200")
-        url = f'{base_url_frontend}/api/password_confirm/'
-        reset_link = f"{url}?id={userId}&token={token}"
+        base_url_frontend = os.environ.get('BASIS_URL_FRONTEND', default="http://127.0.0.1:5500")
+        ##url = f'{base_url_frontend}/api/password_confirm'
+        reset_link = f'{base_url_frontend}/pages/auth/confirm_password.html?uid={userId}&token={token}'
+        #reset_link = f"{url}/{userId}/{token}"
         self.send_email_to_user(username, user_email, reset_link)
         return {"detail":'An email has been sent to reset your password.'}
 

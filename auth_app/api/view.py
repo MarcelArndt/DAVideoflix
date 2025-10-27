@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
 
-from auth_app.api.serializers import RegestrationSerializer, VerifyUserByEmailSerializer, SendEmailForResetPasswordSerializer, ResetPasswordSerializer, ResetValidationEmailSerializer, EmailTokenObtainSerializer, UserIsAuthenticadeAndVerified
+from auth_app.api.serializers import RegestrationSerializer, SendEmailForResetPasswordSerializer, ResetPasswordSerializer, ResetValidationEmailSerializer, EmailTokenObtainSerializer, UserIsAuthenticadeAndVerified
 from auth_app.auth import CookieJWTAuthentication
 from auth_app.permissions import AllowAnyButTrackAuth
 
@@ -17,7 +17,10 @@ from rest_framework.permissions import AllowAny
 
 from .serializers import UserSerializer
 from dotenv import load_dotenv
+from django.contrib.auth.tokens import default_token_generator
 
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str 
 
 import os
 import django
@@ -181,11 +184,20 @@ class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []    
 
-    def get(self, request):
-        serializer = VerifyUserByEmailSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
-        return Response({"message": "Ops, something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, uidb64, token):
+        id = force_str(urlsafe_base64_decode(uidb64))
+        try:
+            user = User.objects.get(pk=id)
+        except:
+            return Response({"message": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
+        if(user.email_token == token):
+            user.email_is_confirmed = True
+            user.is_active = True
+            user.save()
+        else:
+            return Response({"message": "Link is invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
+
         
 
 class SendEmailForResetPasswordView(APIView):
@@ -202,11 +214,22 @@ class SetNewPasswordView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []    
     
-    def post(self, request):
-        serializer = ResetPasswordSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, uidb64, token):
+        id = force_str(urlsafe_base64_decode(uidb64))
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+        try:
+            user = User.objects.get(pk=id)
+        except:
+            return Response({"detail": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
+        if not default_token_generator.check_token(user, token):
+            return Response({'detail': "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
+        if new_password != confirm_password:
+            return Response({'detail': "Password don't match"}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(new_password)
+        user.save()
+        return Response({'detail': "Your Password has been successfully reset."}, status=status.HTTP_200_OK)
+
     
 class ResendEmailView(APIView):
     permission_classes = [IsAuthenticated]

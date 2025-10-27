@@ -37,7 +37,7 @@ def sendMail(created, instance):
         uidb64Id =  urlsafe_base64_encode(force_bytes(instance.pk))
         context = {
             "username": instance.username,
-            "verify_link": f"{basis_url_backend}/api/activate/?id={uidb64Id}&token={instance.email_token}"
+            "verify_link": f"{basis_url_backend}/api/activate/{uidb64Id}/{instance.email_token}/"
         }
         html_content = render_to_string("emails/verification_email.html", context)
         email = EmailMultiAlternatives(subject, "", from_email, [instance.email])
