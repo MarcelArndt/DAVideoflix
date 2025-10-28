@@ -47,19 +47,29 @@ Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen
 
 
 5.requirements installieren
-    ```bash
+    ```
     pip install -r requirements.txt
     ```
+
+
 6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern
 
+
+
 7.Docker-Compose ausführen
-    ```bash
+    ```
     docker-compose up --build  
-    ```bash
+    ```
+
+
 
 8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)
 
+
+
 9. Videos hochladen geht über das Admin-Panel <a href="http://localhost:8000/admin/service_app/video/">http://localhost:8000/api/admin/service_app/video/<a></li>
+
+
 
 API-Endpunkte entsprechend der Dokumentation im Projekt
 Admin-Interface (sofern konfiguriert) unter admin
