@@ -53,6 +53,9 @@ Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen
 6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern
 
 7.Docker-Compose ausführen
+    ```bash
+    docker-compose up --build  
+    ```bash
 
 8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)
 
