@@ -46,7 +46,7 @@ Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen
     ```
 
 
-5.requirements installieren
+5. requirements.txt installieren
     ```
     pip install -r requirements.txt
     ```
@@ -56,14 +56,14 @@ Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen
 
 
 
-7.Docker-Compose ausführen
+7. Docker-Compose ausführen
     ```
     docker-compose up --build  
     ```
 
 
 
-8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)
+8. Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)
 
 
 
