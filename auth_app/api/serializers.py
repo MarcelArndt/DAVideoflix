@@ -2,8 +2,6 @@ import os
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
-from auth_app.utils import send_validation_email
 from auth_app.models import Profiles
 
 from django.template.loader import render_to_string
@@ -21,13 +19,16 @@ from dotenv import load_dotenv
 
 import secrets
 
-import django_rq
-
 load_dotenv()
 
 User = get_user_model()
 
-
+'''
+Validates the provided email and password fields, ensures that the
+passwords match, and that the email address is unique. Upon successful
+validation, it creates a new `Profiles` user instance with a unique
+username and an email verification token.
+'''
 class RegestrationSerializer(serializers.ModelSerializer):
     confirmed_password = serializers.CharField(write_only = True)
     password = serializers.CharField(write_only = True)
@@ -67,13 +68,13 @@ class RegestrationSerializer(serializers.ModelSerializer):
         return profil
     
 
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__' 
-
-
+'''
+Login
+Custom JWT authentication serializer that uses email instead of username.
+This serializer validates a user's email and password combination.
+If valid, it generates and returns a JWT access/refresh token pair along
+with additional user information.
+'''
 class EmailTokenObtainSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -107,18 +108,15 @@ class EmailTokenObtainSerializer(TokenObtainPairSerializer):
             })
 
             return data
-    
 
-class UserIsAuthenticadeAndVerified(serializers.Serializer):
-    email_confirmed = serializers.SerializerMethodField()
-    def get_email_confirmed(self, obj):
-        request = self.context.get("request")
-        user = request.user if request else None
-        if user:
-            return user.email_is_confirmed
-        return False
 
-       
+'''
+Serializer for sending a password reset email.
+Validates that the provided email belongs to a registered user.
+Generates a secure password reset token and UID, constructs a reset
+link, and sends an email to the user with instructions to reset
+their password.
+'''      
 class SendEmailForResetPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(write_only=True)
 
@@ -154,6 +152,12 @@ class SendEmailForResetPasswordSerializer(serializers.Serializer):
         email.attach_alternative(html_content, "text/html")
         email.send()
 
+'''
+Serializer for resetting a user's password.
+Validates the provided new password and confirmation password,
+checks the UID and token from the request query parameters,
+and updates the user's password if everything is valid.
+'''    
 class ResetPasswordSerializer(serializers.Serializer):
     new_password= serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
@@ -177,13 +181,3 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         return { "detail": "Your Password has been successfully reset."}
-
-class ResetValidationEmailSerializer(serializers.Serializer):
-    def validate(self, data):
-        user = self.context['request'].user
-        profil =  getattr(user, "abstract_user", None)
-        if not profil:
-            raise serializers.ValidationError({'error':"User not found"})
-        queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(send_validation_email,profil.id)
-        return {"message": "email was sent."}

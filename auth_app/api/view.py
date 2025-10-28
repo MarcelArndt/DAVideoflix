@@ -3,19 +3,16 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
 
-from auth_app.api.serializers import RegestrationSerializer, SendEmailForResetPasswordSerializer, ResetPasswordSerializer, ResetValidationEmailSerializer, EmailTokenObtainSerializer, UserIsAuthenticadeAndVerified
-from auth_app.auth import CookieJWTAuthentication
-from auth_app.permissions import AllowAnyButTrackAuth
+from auth_app.api.serializers import RegestrationSerializer, SendEmailForResetPasswordSerializer,EmailTokenObtainSerializer
+
 
 from rest_framework.views import APIView 
 
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
-from django.shortcuts import render
-from django.views import View
+
 
 from dotenv import load_dotenv
 from django.contrib.auth.tokens import default_token_generator
@@ -32,7 +29,12 @@ load_dotenv()
 User = get_user_model()
 
 
-
+'''
+API view to handle user registration.
+Accepts an email, password, and password confirmation, validates the input,
+creates a new user profile, and returns the user details along with
+an email verification token.
+'''
 class RegestrationView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []     
@@ -53,7 +55,11 @@ class RegestrationView(APIView):
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         return Response(data, status=status.HTTP_201_CREATED)
 
-    
+'''
+API view to handle user logout by deleting authentication cookies.
+This view removes the JWT access and refresh tokens stored in cookies,
+effectively logging out the user.
+'''
 class CookieTokenLogoutView(APIView):
 
     permission_classes = [AllowAny]
@@ -92,7 +98,11 @@ class CookieTokenLogoutView(APIView):
 
         return response
     
-
+'''
+PI view for logging in users and setting JWT tokens as cookies.
+This view authenticates users using email and password, generates
+JWT access and refresh tokens, and sets them as secure, HTTP-only cookies.
+'''
 class CookieTokenObtainView(TokenObtainPairView):
 
     permission_classes = [AllowAny]
@@ -137,7 +147,12 @@ class CookieTokenObtainView(TokenObtainPairView):
 
             return response
         return Response({'message':'wrong e-mail or password'},status=status.HTTP_401_UNAUTHORIZED)
-    
+
+'''
+API view to refresh the JWT access token using the refresh token stored in cookies.
+This view retrieves the refresh token from the user's cookies, validates it,
+and issues a new access token, which is set as an HTTP-only secure cookie.
+'''     
 class CookieTokenRefreshView(TokenRefreshView):
 
     permission_classes = [AllowAny]
@@ -165,20 +180,12 @@ class CookieTokenRefreshView(TokenRefreshView):
         )
         return response
     
-    
-class CookieIsAuthenticatedAndVerifiedView(APIView):
 
-    permission_classes = [AllowAnyButTrackAuth]
-    authentication_classes = [CookieJWTAuthentication]
-
-    def post(self, request):
-        if self.request.user and self.request.user.is_authenticated:
-             serializer = UserIsAuthenticadeAndVerified(instance=request.user, context={'request': request})
-             return Response({'authenticated': True, 'email_confirmed': request.user.email_is_confirmed, 'message': 'User is authenticated' }, status=status.HTTP_200_OK)
-        else:
-             return Response({'authenticated': False, 'email_confirmed': None, 'message': 'User is not authenticated' }, status=status.HTTP_200_OK)
-
-
+'''
+API view to verify a user's email address.
+This view is accessed via a link sent to the user's email during registration.
+It confirms the user's email and activates their account if the token is valid.
+'''
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []    
@@ -197,8 +204,12 @@ class VerifyEmailView(APIView):
             return Response({"message": "Link is invalid"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
 
-        
 
+'''
+API view to request a password reset email.
+Accepts an email address and sends a password reset link to the user
+if the email is registered.
+''' 
 class SendEmailForResetPasswordView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = [] 
@@ -209,6 +220,12 @@ class SendEmailForResetPasswordView(APIView):
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
+
+'''
+API view to reset a user's password using a UID and token.
+This view allows users to set a new password after they have requested
+ a password reset and received a secure link with a UID and token.
+'''
 class SetNewPasswordView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []    
@@ -228,20 +245,3 @@ class SetNewPasswordView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'detail': "Your Password has been successfully reset."}, status=status.HTTP_200_OK)
-
-    
-class ResendEmailView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CookieJWTAuthentication]
-
-    def post(self, request):
-        serializer = ResetValidationEmailSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PreviewEmailView(View):
-    def get(self, request):
-        context = {'username': 'TestUser', 'reset_link': 'https://example.com/reset'}
-        return render(request, 'emails/verification_email.html', context)

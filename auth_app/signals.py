@@ -3,10 +3,8 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
 from auth_app.models import Profiles
-from django.db.models.signals import post_save, post_delete
-from rest_framework.authtoken.models import Token
+from django.db.models.signals import post_save
 from django.conf import settings
-from django.contrib.auth.models import User
 import django_rq
 import os
 from django.utils.http import urlsafe_base64_encode
@@ -16,6 +14,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+'''
+After creating a new account, it will send an email to the user with a link to activate their account.
+'''
 @receiver(post_save, sender=Profiles)
 def send_verification_email(sender, instance, created, **kwargs):
 
@@ -41,10 +42,4 @@ def sendMail(created, instance):
         email = EmailMultiAlternatives(subject, "", from_email, [instance.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
-        print("______________________________________________")
-        print(f"EMAIL_TO: {instance.email}")
-        print(f"EMAIL_FROM: {from_email}")
-        print(email)
-        print(f"EMAIL SUCCESS")
-        print("______________________________________________")
         
