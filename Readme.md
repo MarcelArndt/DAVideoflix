@@ -23,46 +23,40 @@ Ziel: Aufgabenverwaltung von Film-/Video-Inhalten, Kategorisierung nach Genres, 
 - Eine `.env` (umbenannt aus `.env.template`) mit den notwendigen Umgebungsvariablen  
 
 ## Installation & Ausführung
-<ul>
-<li>1. Repository klonen  
+
+1. Repository klonen  
     ```bash  
     git clone https://github.com/MarcelArndt/DAVideoflix.git  
     ```
-</li>
 
-<li>2. Bearbeiten der .env.template und umbennnen in .env.
+
+2. Bearbeiten der .env.template und umbennnen in .env.
 Danach im .env z.B. Datenbank-Host, Nutzer, Passwort, SECRET_KEY etc eintragen
-</li>
 
-<li>3. virtuelle umgebung ertsellen<br> 
+
+3. virtuelle umgebung ertsellen
     ```bash
     python -m venv env
     ```
-</li>
 
-<li>4. virtuelle umgebung aktivieren<br> 
+
+4. virtuelle umgebung aktivieren 
     ```bash
     ./env/Scripts/activate
     ```
-</li>
 
-<li>5.requirements installieren<br>
+
+5.requirements installieren
     ```bash
     pip install -r requirements.txt
     ```
-</li>
+6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern
 
-<li>6. Bei Probleme beim Starten des Docker die Select End of Line der backend.entrypoint.sh ändern von CRLF auf LF und datei speichern</li>
+7.Docker-Compose ausführen
 
-<li>7.Docker-Compose ausführen<br> 
-</li>
+8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)
 
-
-<li>8.Nach erfolgreichem Build und Start sollte der Server lokal erreichbar sein (z. B. http://localhost:8000)</li>
-
-
-<li>9. Videos hochladen geht über das Admin-Panel <a href="http://localhost:8000/admin/service_app/video/">http://localhost:8000/api/admin/service_app/video/<a></li>
-</ul>
+9. Videos hochladen geht über das Admin-Panel <a href="http://localhost:8000/admin/service_app/video/">http://localhost:8000/api/admin/service_app/video/<a></li>
 
 API-Endpunkte entsprechend der Dokumentation im Projekt
 Admin-Interface (sofern konfiguriert) unter admin
