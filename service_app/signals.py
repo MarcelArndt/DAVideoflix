@@ -2,7 +2,7 @@ import os
 import subprocess
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Video, VideoProgress, CurrentVideoConvertProgress
+from .models import Video
 from django.conf import settings
 import django_rq
 import glob
@@ -12,8 +12,10 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-ISDEBUG = True if os.environ.get("DEBUG", default="True") == "True" else False
 
+'''
+to set the desired resolutions of the videos and thumbnails
+'''
 RESOLUTIONS = {
         'videos': {
             '1080p': '1920x1080',
@@ -24,7 +26,9 @@ RESOLUTIONS = {
         'thumbnails': '270:150'
     }
 
-
+'''
+will track a new instacte/video and start to convert
+'''
 @receiver(post_save, sender=Video)
 def generate_video_data(sender, instance, created, **kwargs):
     if not created or not instance.url:
@@ -33,7 +37,9 @@ def generate_video_data(sender, instance, created, **kwargs):
     queue = django_rq.get_queue('default', autocommit=True)
     queue.enqueue(generate_video_versions, instance)
 
-
+'''
+start and init for genereate/convert a new video
+'''
 def generate_video_versions(instance):
     base_output_dir = os.path.join(settings.MEDIA_ROOT, 'uploads/videos/converted')
     os.makedirs(base_output_dir, exist_ok=True)
@@ -58,15 +64,11 @@ def generate_video_versions(instance):
         
     except Exception as error:
         print(f'something went Wrong! {error}')
-    finally:
-        CurrentVideoConvertProgress.objects.filter(video=instance).delete()
 
-
+'''
+pure cmd comment for converting
+'''
 def ffmpeg_converting_process(filename, size, resolution, video, output_dir, output_path):
-    """
-    output_dir ist jetzt der Auflösungs-spezifische Ordner (z.B. demon_slayer_480p/)
-    output_path ist jetzt der Pfad zur index.m3u8 in diesem Ordner
-    """
     cmd = [
         'ffmpeg', '-i', video,
         '-vf', f'scale={size}',
@@ -83,13 +85,17 @@ def ffmpeg_converting_process(filename, size, resolution, video, output_dir, out
     ]
     subprocess.run(cmd, check=True)
     
-
+'''
+only to save the finished video
+'''
 def save_new_video_path(instance, master_path):
     relative_path = os.path.relpath(master_path, settings.MEDIA_ROOT)
     instance.url.name = relative_path
     instance.save()
 
-
+'''
+will generate all master playlist for each resolutions
+'''
 def generate_master_playlist(filename, output_dir):
     master_playlist_path = os.path.join(output_dir, f'{filename}_master.m3u8')
     bandwidth_map = {
@@ -106,7 +112,9 @@ def generate_master_playlist(filename, output_dir):
             file.write(f'{filename}_{resolution}/index.m3u8\n')
     return master_playlist_path
 
-
+'''
+Returns one third of the length of a video for creating a thumbnail
+'''
 def get_video_duration(video_path):
     try:
         cmd = [
@@ -124,7 +132,9 @@ def get_video_duration(video_path):
         print('Fehler beim Abrufen der Videodatei.')
         return 1
 
-
+'''
+will set a new thumbnail
+'''
 def generate_video_thumbnail(instance):
     original_video_path = instance.url.path
     output_dir = os.path.join(settings.MEDIA_ROOT, 'uploads/thumbnails')
@@ -147,35 +157,35 @@ def generate_video_thumbnail(instance):
         print(f"[ffmpeg] Fehler bei Thumbnail: {e}")
 
 
-
+'''
+will start if a video gets deleted
+'''
 @receiver(post_delete, sender=Video)
 def delete_file(sender, instance, *args, **kwargs):
-    if not ISDEBUG:
-        queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(delete_video, instance)
-    else: 
-        delete_video(instance)
+
+    queue = django_rq.get_queue('default', autocommit=True)
+    queue.enqueue(delete_video, instance)
 
 
+'''
+init funktion for delet all segments, thumbnails and the original video
+'''
 def delete_video(instance):
     delete_thumbnail(instance)
     delete_all_video(instance)
-    delete_all_progress(instance)
 
-
-def delete_all_progress(instance):
-    videoId = instance.id
-    queryset =  VideoProgress.objects.filter(video = videoId)
-    deleted_count, _ = queryset.delete()
-
-
+'''
+check and delete thumbnail
+'''
 def delete_thumbnail(instance):
     if instance.thumbnail_url:
         thumb_path = os.path.join(settings.MEDIA_ROOT, instance.thumbnail_url.name)
         if os.path.exists(thumb_path):
             os.remove(thumb_path)
     
-
+'''
+check and find all data of the current Video and delete them
+'''
 def delete_all_video(instance):
     if not instance.url:
         return
@@ -190,7 +200,9 @@ def delete_all_video(instance):
     deleteOriginalVideo(base_filename)
     CheckAndDeleteVideoUrl(original_path)
 
-# 1. Lösche alle Auflösungs-Ordner (z.B. demon_slayer_480p/, demon_slayer_720p/)
+'''
+find and delte all Resolution and segments
+'''
 def deleteAllResolutionFile(converted_dir, base_filename ):
     for resolution in ['360p', '480p', '720p', '1080p']:
         resolution_dir = os.path.join(converted_dir, f"{base_filename}_{resolution}")
@@ -198,7 +210,10 @@ def deleteAllResolutionFile(converted_dir, base_filename ):
             shutil.rmtree(resolution_dir)  # Löscht Ordner mit allem Inhalt
             print(f"Gelöscht: {resolution_dir}")
 
- # 2. Lösche die Master-Playlist
+
+'''
+find and delte all Master Playlists
+'''
 def deleteAllMasterFile(converted_dir, base_filename ):
     master_playlist = os.path.join(converted_dir, f"{base_filename}_master.m3u8")
     if os.path.exists(master_playlist):
@@ -206,7 +221,9 @@ def deleteAllMasterFile(converted_dir, base_filename ):
         print(f"Gelöscht: {master_playlist}")
 
 
-# 3. Fallback: Lösche alte einzelne Dateien (falls noch welche existieren)
+'''
+deletes all other files, if any remain
+'''
 def checkAndDeleteAnyFile(converted_dir, base_filename ):
     pattern = os.path.join(converted_dir, f"{base_filename}_*")
     matching_files = glob.glob(pattern)
@@ -215,7 +232,9 @@ def checkAndDeleteAnyFile(converted_dir, base_filename ):
             os.remove(file)
             print(f"Gelöscht (alt): {file}")
 
-# 4. Lösche Original-Video
+'''
+deletes the orignal video
+'''
 def deleteOriginalVideo(base_filename):
     original_video_path = os.path.join(
         settings.MEDIA_ROOT, 
@@ -226,9 +245,11 @@ def deleteOriginalVideo(base_filename):
         os.remove(original_video_path)
         print(f"Gelöscht: {original_video_path}")
 
-# 5. Lösche den Pfad aus instance.url (falls anders als Original)
+'''
+deletes the url in instance
+'''
 def CheckAndDeleteVideoUrl(original_path):
     if os.path.exists(original_path):
         os.remove(original_path)
-        print(f"Gelöscht: {original_path}")
+        print(f"delete: {original_path}")
 

@@ -1,10 +1,12 @@
 from django.contrib import admin
 from .models import Video
 
-
+'''
+   def get_form() -> will ste Url's label to Video-URL
+'''
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    readonly_fields = ('is_converted', 'current_convert_state')
+    readonly_fields = ()
     list_display = ('title', 'category', 'url')
     fields = ('title', 'description', 'category', 'url', 'thumbnail_url')
     

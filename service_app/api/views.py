@@ -1,8 +1,7 @@
 from rest_framework import generics
-from service_app.models import Video,  VideoProgress, CurrentVideoConvertProgress
+from service_app.models import Video
 from rest_framework.views import APIView
-from .serializers import VideosSerializer, VideoProgressSerializer, CurrentVideoConvertProgressSerializer, VideoMasterSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializers import VideosSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.cache import cache
@@ -15,8 +14,16 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
+
+'''
+Cache timer for Redis
+'''   
 CACHE_TIMER = int(os.getenv('CACHE_TIMER', default=0))
 
+
+'''
+will return a complete list of all videos
+'''   
 class VideosListView(APIView):
     authentication_classes = [CookieJWTAuthentication]
         
@@ -32,15 +39,11 @@ class VideosListView(APIView):
         cache.set(cache_key, serialized.data, timeout=CACHE_TIMER)
         return Response(serialized.data)
 
-class VideosDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Video.objects.all()
-    serializer_class = VideosSerializer
 
-    def perform_destroy(self, instance):
-        cache.delete("video_list_view")
-        return super().perform_destroy(instance)
-    
-
+'''
+Returns the master playlist for the current resolution, to be ordered by the frontend.
+URL -> path('video/<int:movie_id>/<str:resolution>/index.m3u8', ServeVideoMasterView.as_view(), name='serve_hls_playlist')
+'''   
 class ServeVideoMasterView(APIView):
     def get(self, request, movie_id, resolution):
         try:
@@ -67,7 +70,10 @@ class ServeVideoMasterView(APIView):
             content_type='application/vnd.apple.mpegurl'
         )
 
-
+'''
+Returns a segment for of a video, to be ordered by the frontend.
+URL -> path('video/<int:movie_id>/<str:resolution>/<str:segment>', ServeHlsSegmentView.as_view(), name='serve_hls_segment')
+'''   
 class ServeHlsSegmentView(APIView):
     def get(self, request, movie_id, resolution, segment):
         try:
@@ -98,76 +104,11 @@ class ServeHlsSegmentView(APIView):
         )
 
 
-class VideoProgressListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CookieJWTAuthentication]
-    serializer_class = VideoProgressSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        profile = None
-        if not user.is_authenticated:
-            return VideoProgress.objects.none()
-        profile = user.abstract_user
-
-        if not user.is_authenticated:
-            return VideoProgress.objects.none()
-        if not profile:
-            return VideoProgress.objects.none()
-        
-        queryset = VideoProgress.objects.filter(profiles=profile)
-        video = self.request.query_params.get("videoId")
-        if video:
-            queryset = queryset.filter(video=video)
-        return queryset
-
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-
-        if hasattr(self, 'existing_instance'):
-            serializer = self.get_serializer(self.existing_instance)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return response
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        profiles = user.abstract_user
-        video = serializer.validated_data.get('video')
-        existing = VideoProgress.objects.filter(profiles=profiles, video=video).first()
-
-        if existing:
-            self.existing_instance = existing
-            return
-        
-        serializer.save(profiles=profiles)
-
-
-class VideoProgressDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CookieJWTAuthentication]
-    serializer_class = VideoProgressSerializer
-
-    def get_queryset(self):
-        pk = self.kwargs.get("pk")
-        queryset = VideoProgress.objects.filter(pk=pk)
-        return queryset
-    
-    def perform_update(self, serializer):
-        return super().perform_update(serializer)
-    
-class CurrentVideoConvertProgressListView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CookieJWTAuthentication]
-    serializer_class = CurrentVideoConvertProgressSerializer
-    queryset = CurrentVideoConvertProgress.objects.all() 
-
-class CurrentVideoConvertProgressDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CookieJWTAuthentication]
-    serializer_class = CurrentVideoConvertProgressSerializer
-    queryset = CurrentVideoConvertProgress.objects.all() 
-    
+'''
+server all typs of meida in production
+core urls.py
+URL -> re_path(r'^media/(?P<path>.*)$', ServeMediaView.as_view(), name='serve_media')
+'''
 class ServeMediaView(APIView):
     def get(self, request, path):
         file_path = os.path.join(settings.MEDIA_ROOT, path)
